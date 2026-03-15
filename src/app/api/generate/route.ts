@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { getCategoryBySlug } from "@/data/categories";
 
 // Simple in-memory rate limiter: IP -> { count, resetTime }
@@ -114,8 +114,8 @@ Each element must have exactly these fields:
 
 Return ONLY a JSON array.`.trim();
 
-  // Call Anthropic API
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  // Call OpenAI API
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
       { error: "Service configuration error" },
@@ -123,22 +123,25 @@ Return ONLY a JSON array.`.trim();
     );
   }
 
-  const client = new Anthropic({ apiKey });
+  const client = new OpenAI({ apiKey });
 
   try {
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.9,
       max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
     });
 
-    const textBlock = message.content.find((b) => b.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
+    const text = completion.choices[0]?.message?.content;
+    if (!text) {
       throw new Error("No text response from AI");
     }
 
-    const parsed = JSON.parse(textBlock.text);
+    const parsed = JSON.parse(text);
 
     if (!Array.isArray(parsed)) {
       throw new Error("Response is not an array");
