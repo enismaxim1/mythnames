@@ -1,5 +1,8 @@
 import { categoriesPart1 } from "./categories-part1";
 import { categoriesPart2 } from "./categories-part2";
+import { categoriesPart3 } from "./categories-part3";
+import { categoriesPart5 } from "./categories-part5";
+import { categoriesPart6 } from "./categories-part6";
 
 export interface NameCategory {
   slug: string;
@@ -17,6 +20,9 @@ export interface NameCategory {
 export const categories: NameCategory[] = [
   ...categoriesPart1,
   ...categoriesPart2,
+  ...categoriesPart3,
+  ...categoriesPart5,
+  ...categoriesPart6,
 ];
 
 export const groups: string[] = [
